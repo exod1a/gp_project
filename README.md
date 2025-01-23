@@ -6,6 +6,8 @@ In brief, it is a Bayesian model implemented in Stan that looks at decomposing t
 # Main Figures
 Before running any other file, run "scripts/main.R". It will load the necessary packages, functions, and compile the Stan model.
 
+Clicking on the images will bring you to them. The proper README can be viewed with the .html version.
+
 ## Figure 1
 
 Mostly made in Inkscape but Figure 1e can be made by running "scripts/figures/main_text/short_vs_long_ts.R"
