@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Ross"
+  given-names: "Chandler"
+  orcid: "https://orcid.org/0009-0007-2628-1356"
+title: "Reconstructing community dynamics from limited observations"
+version: 1.0.0
+doi: 10.5281/zenodo.14989143
+date-released: 2025-03-07
+url: "https://doi.org/10.5281/zenodo.14989143"
