@@ -140,7 +140,7 @@ true_pos_matrix <- matrix(NA, 4, 4)
 t_c <- 49.04125
 
 dt <- c(t_c, 0.1*t_c, 0.01*t_c, 0.001*t_c)
-total_points <- c(25, 50, 100, 200)
+total_points <- c(26, 50, 100, 200)
 
 #for (m in 1:length(dt)) {
 #  for (n in 1:length(total_points)) {
@@ -149,22 +149,22 @@ for (m in 1:4) {
   for (n in 1:4) {
     
     true_positives <- read.table(here("output", "figures", "main_text", "figure 3", "heatmap_bistable", 
-                                      paste(dt[m]/t_c, "t_c", "N", total_points[n], ".txt", sep = "")), header = FALSE, sep = "\n")
+                                      paste(dt[m]/t_c, "t_c", "N", total_points[n], ".txt", sep = "")), header = T)
     
-    true_pos_matrix[m, n] <- (sum(true_positives)) / (sum(true_positives) + sum(!true_positives)) * 100
+    true_pos_matrix[m, n] <- (sum(true_positives$bistable)) / (sum(true_positives$bistable) + sum(!true_positives$bistable)) * 100
   }
 }
 
 rownames(true_pos_matrix) <- c("t_c", "0.1t_c", "0.01t_c", "0.001t_c")
-colnames(true_pos_matrix) <- c("25", "50", "100", "200")
+colnames(true_pos_matrix) <- c("26", "50", "100", "200")
 
 to_plot <- melt(true_pos_matrix)
 to_plot$Var1 <- factor(to_plot$Var1, ordered = T, levels = c("0.001t_c", "0.01t_c", "0.1t_c", "t_c"))
-to_plot$Var2 <- factor(to_plot$Var2, ordered = T, levels = c("25", "50", "100", "200"))
+to_plot$Var2 <- factor(to_plot$Var2, ordered = T, levels = c("26", "50", "100", "200"))
 
 bistable_heatmap <- ggplot(data = to_plot, aes(Var2, Var1, fill = value)) + 
   geom_tile() +
-  #geom_text(aes(label=round(value, 0)), colour = "white") +
+  geom_text(data = to_plot, aes(x = Var2, y = Var1, label = round(value, 0)), colour = "black") +
   scale_fill_gradientn(limits = c(0, 100), colours = c('midnightblue', '#FFFFFF', 'red')) +
   scale_x_discrete(expand=c(0,0)) +
   scale_y_discrete(expand=c(0,0)) +
@@ -405,7 +405,6 @@ SDE_plot <- ggarrange(ts_plot_ordered +
 # run model
 source(here("scripts", "model", "prepare_data.R"))
 
-
 if (file.exists(here("output", "figures", "main_text", "figure 3", "fig3.2_data.rds"))) {
   
   samples <- readRDS(here("output", "figures", "main_text", "figure 3", "fig3.2_data.rds"))$samples
@@ -485,7 +484,7 @@ to_plot$Var2 <- factor(to_plot$Var2, ordered = T, levels = c("25", "50", "100", 
 # plot matrix 
 bimodal_heatmap <- ggplot(data = to_plot, aes(Var2, Var1, fill = value)) + 
   geom_tile() +
-  #geom_text(aes(label=value), colour = "white") +
+  geom_text(data = to_plot, aes(x = Var2, y = Var1, label = round(value, 0)), colour = "black") +
   scale_fill_gradientn(limits = c(0, 100), colours = c('midnightblue', '#FFFFFF', 'red')) +
   scale_x_discrete(expand=c(0,0)) +
   scale_y_discrete(expand=c(0,0)) +

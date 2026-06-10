@@ -1,128 +1,142 @@
 
-# code to make extended data figure 5
-# get upper and lower bounds on the exit time given all of the data to see how it compares with our prediction
+# code to make extended data figure 5 in the publication
+# takes roughly 5 minutes to run
 
-tp_crossings <- function(ts, tp, index) {
-  
-  cross_to_left <- c()
-  cross_to_right <- c()
-  
-  for (i in 1:(nrow(ts)-1)) {
-    if (ts[i+1, index] < tp & ts[i, index] < tp) {
-      next
-    } else if (ts[i+1, index] > tp & ts[i, index] < tp) {
-      cross_to_right <- c(cross_to_right, i+1)
-    } else if (ts[i+1, index] > tp & ts[i, index] > tp) {
-      next
-    } else if (ts[i+1, index] < tp & ts[i, index] > tp) {
-      cross_to_left <- c(cross_to_left, i+1)
-    }
-  }
-  
-  return(list(length(cross_to_left) + length(cross_to_right), 
-              data.frame("crossings" = c(cross_to_left, cross_to_right), 
-                         "direction" = c(rep("l", length(cross_to_left)), rep("r", length(cross_to_right))))))
-}
+# Lake Mendota
+# load data
+bga_data <- read.table(file = here("data", "Arani2021", "BGA_stdlevel_2011.csv"), sep = ",", header = T)
 
-chosen_taxa <- "Prevotella_melaninogenica_et_rel"
-samples <- readRDS(here("data", "ext_HITChip", chosen_taxa, "stan_output.rds"))$samples
-x_pred <- readRDS(here("data", "ext_HITChip", chosen_taxa, "stan_output.rds"))$x_pred
-
-data_read_from_file <- 1
-pred_inf <- 1
-ground_truth <- 0
-source(here("scripts", "model", "run_drift_diff.R"))
-
-source(here("scripts", "model", "stability.R"))
-if (length(pos_roots) > 0) {
-  source(here("scripts", "model", "tipping_point.R"))
-  source(here("scripts", "model", "exit_time.R"))
-}
-
-ts_data_full <- readRDS(here("data", "ext_HITChip", chosen_taxa, "ts_data.rds"))
-# rename column
-names(ts_data_full)[4] <- c("state")
-
-# predicted tipping point location
-tp_location <- mean_tp
-
-# vectors for lower and upper bounds, including their x values
-lower_bound <- c()
-lb_x <- c()
-upper_bound <- c()
-ub_x <- c()
-
-# isolate subjects
-subjects <- unique(ts_data_full$subject)
-
-# 4 for prevotella, 1 for cusp and mendota
-ind <- 4
-
-# go through each short time series 
-for (i in subjects) {
-  print(i)
-  # subset one short time series at a time
-  subsetted_df <- ts_data_full[which(ts_data_full$subject == i), ]
-  
-  # if it crosses the tipping point, look for upper bound
-  if (tp_crossings(subsetted_df, tp_location, ind)[[1]] != 0) {
-    # if it crosses only once can easily find the upper bound
-    if (tp_crossings(subsetted_df, tp_location, ind)[[1]] == 1) {
-      
-      # index where it crosses
-      crossing_point <- tp_crossings(subsetted_df, tp_location, ind)[[2]][1, 1]
-      # calculate upper bound
-      upper_bound <- c(upper_bound, subsetted_df$time[crossing_point])
-      # find x value exit time was calculated at
-      ub_x <- c(ub_x, subsetted_df$state[1])
-    }
-  } else {
-    # if it doesn't cross the tipping point, look for lower bound
-    lower_bound <- c(lower_bound, max(subsetted_df$time) - min(subsetted_df$time))
-    # find x value exit time was calculated at
-    lb_x <- c(lb_x, subsetted_df$state[1])
-  }
-} 
-
-ts_data_full$mean_val <- NA
-for (i in unique(ts_data_full$subject)) {
-  subject_vals <- which(ts_data_full$subject == i)
-  ts_data_full$mean_val[subject_vals] <- (min(ts_data_full$state[subject_vals]) + max(ts_data_full$state[subject_vals]))/2
-}
-
-ts_data_full$mean_val <- factor(ts_data_full$mean_val)
-
-
-ts_plot_ordered <- ts_data_full %>%
-  ggplot() +
-  geom_line(aes(x = state, y = mean_val, group=as.character(mean_val)), colour = "royalblue4", size = 0.2) +
-  geom_point(aes(x = state, y = mean_val, group = as.character(mean_val)), size = 0.1) +
-  labs(x = "System state", y = "Subject", title = chosen_taxa) +
-  #geom_vline(xintercept = mean_tp, linetype = "dashed", colour = "orange") +
-  theme_classic() + 
-  coord_cartesian(xlim = c(min(x_pred), max(x_pred))) +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
-
-
-time_scales_plot <- ggplot() +
-  geom_ribbon(aes(x = pos_exit_time_tp_CI$x[1:(length(x_pred) + 1)], ymin = ET_centred_pos[, 1], ymax = ET_centred_pos[, 3]), fill = "mediumpurple2", alpha = 0.5) + 
-  geom_ribbon(aes(x = pos_exit_time_tp_CI$x[1:(length(x_pred) + 1)], ymin = ET_centred_pos[, 1], ymax = ET_centred_pos[, 2]), fill = "mediumpurple3", alpha = 0.5) + 
-  geom_line(aes(c(et_l[[1]], et_r[[1]]), c(et_l[[2]], et_r[[2]])), colour = "mediumpurple", size = 0.7) +
-  geom_point(aes(lb_x, lower_bound), colour = "snow3", alpha = 0.8) +
-  geom_point(aes(ub_x, upper_bound), colour = "mediumturquoise", alpha = 0.8) +
-  #geom_vline(xintercept = tp_location, linetype = "dashed", colour = "orange") +
-  labs(title = "", x = "System state", y = "Exit time (days)") +
-  coord_cartesian(ylim = c(0, 3000)) +
+# plot original data
+lake_men_plot <- ggplot(data = bga_data) +
+  geom_line(aes(Tstep, X.stdlevel), colour = "royalblue4", size = 0.3) +
+  labs(x = "Time (day number in 2011)", y = "Phycocyanin Level (log-transformed)", title = "Lake Mendota") +
+  coord_cartesian(ylim = c(min(bga_data$X.stdlevel), max(bga_data$X.stdlevel))) +
+  scale_x_continuous(breaks = seq(160, 250, 10)) +
+  theme(text = element_text(size = 7)) +
   theme_classic()
+#theme(panel.border = element_rect(colour = "black", fill=NA, size = 1))
+lake_men_plot
 
-# create and save figure
-figure <- ggarrange(ts_plot_ordered + coord_cartesian(xlim = c(min(x_pred), max(x_pred))),
-                    time_scales_plot + coord_cartesian(xlim = c(min(x_pred), max(x_pred)), ylim = c(0, 3000)),
-                    ncol = 1, nrow = 2, align = "hv")
+################################################################################
+# Lake Mendota subsets 
 
-figure
-# create path to save output
+# take stationary density from the exit time paper to draw starting values for lake Mendota
+# read in data from points taken from their graph and fitted with a GP
+# note that these are not really "ground truth" functions. They are just named that way
+# to go with how I have set up the code
+et_paper_drift <- readRDS(here("data", "Arani2021", "m_drift_app.rds"))
+et_paper_diff <- readRDS(here("data", "Arani2021", "m_diff_app.rds"))
+
+names(et_paper_drift) <- c("x", "y")
+names(et_paper_diff) <- c("x", "y")
+
+# calculate stationary density
+stat_dens_et <- nonparametric_stationary_density(et_paper_drift$y, 
+                                                 et_paper_diff$y, 
+                                                 et_paper_drift$x) 
+
+# basic parameters
+ground_truth <- 0
+pred_inf <- 1
+chosen_taxon <- 0
+
+# number of subjects
+n_subjects <- 10
+# number of points
+n_points <- 5
+# number of points in total
+n_total <- n_points*n_subjects
+
+# time step (we use 10 because in the exit time paper they had a time lag of 10)
+dt <- 10
+
+set.seed(236)
+# y0 value drawn from regularly separated intervals
+position <- floor(seq(from = 1, to = length(bga_data$X.stdlevel) - n_points*dt, length.out = n_subjects))
+
+ts_data <- data.frame(matrix(nrow = 0, ncol = n_points))
+for (i in 1:n_subjects) {
+  
+  # Subset lake mendota
+  short_ts_data <- bga_data[seq(position[i], position[i] + (n_points - 1)*dt, by = dt), c(2, 3)] %>%
+    cbind(subject = rep(i, n_points)) %>%
+    set_colnames(c("time", "state", "subject"))
+  
+  # subset data (otherwise it will take too long in Stan)
+  ts_data <- rbind(ts_data, short_ts_data)
+}  
+
+# add short time series to lake mendota time series plot
+lake_men_plot <- lake_men_plot + geom_line(data = ts_data, aes(time, state, group = subject), size = 1, colour = "orchid1")
+
+# convert to minutes
+ts_data$time <- ts_data$time * 24 * 60
+
+source(here("scripts", "model", "time_series_plot.R"))
+ts_plot_ordered <- ts_data %>%
+  ggplot() +
+  geom_line(aes(x=state, y=mean_val, group=as.character(mean_val)), colour = "orchid1") +
+  #geom_point(aes(x = state, y = mean_val, group = as.character(mean_val)), size = 0.2) +
+  labs(x = "System state", y = "Subject", title = "Short time series") +
+  theme_classic() + 
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+ts_plot_ordered
+
+ts_data_full <- ts_data
+source(here("scripts", "model", "prepare_data.R"))
+
+if (file.exists(here("output", "figures", "extended_data", "figure 5", "stan_output.rds"))) {
+
+  # read saved model output
+  samples <- readRDS(here("output", "figures", "extended_data", "figure 5", "stan_output.rds"))$samples
+  x_pred <- readRDS(here("output", "figures", "extended_data", "figure 5", "stan_output.rds"))$x_pred
+  
+  data_read_from_file <- 1
+  source(here("scripts", "model", "run_drift_diff.R"))
+  
+} else {
+  
+  data_read_from_file <- 0
+  source(here("scripts", "model", "run_drift_diff.R"))
+  
+  # save model output
+  stan_output <- list("samples" = samples, "x_pred" = x_pred)
+  saveRDS(stan_output, file = here("output", "figures", "extended_data", "figure 1", "stan_output.rds"))
+}
+
+# create file to save output
 path <- here("output", "figures", "extended_data", "figure 5")
-# save
-ggsave(paste(path, "fig5.pdf", sep = "/"), figure, device = "pdf", height = 160, width = 110, units = "mm", dpi = 500)
+dir.create(path)
 
+source(here("scripts", "model", "stat_dens.R"))
+source(here("scripts", "model", "stability.R"))
+if (length(neg_roots) > 1) {
+  source(here("scripts", "model", "tipping_point.R"))
+}
+
+figure1 <- ggarrange(lake_men_plot + geom_hline(yintercept = most_prob_tp, linetype = "dashed", colour = "orange")  + theme(text = element_text(size = 7)),
+                     NULL,
+                     ts_plot_ordered + coord_flip(xlim = c(min(bga_data$X.stdlevel), max(bga_data$X.stdlevel))) +
+                       theme(axis.ticks.x = element_blank(),
+                             axis.title.y = element_blank()) +
+                       geom_vline(xintercept = most_prob_tp, linetype = "dashed", colour = "orange") +
+                       scale_y_discrete(labels = rep("", n_subjects)) + theme(text = element_text(size = 7)), 
+                     ncol = 3, nrow = 1, widths = c(2, 0.2, 1))
+
+drift_plot <- drift_plot + geom_vline(xintercept = most_prob_tp, linetype = "dashed", colour = "orange") + 
+  coord_cartesian(xlim = c(min(x_pred), max(x_pred)), ylim = c(-0.05, 0.05)) + 
+  theme(text = element_text(size = 7)) +
+  geom_line(data = et_paper_drift, aes(x, y), size = 0.9, 
+            colour = "red", linetype = "dashed")
+
+drift_plot <- insert_xaxis_grob(drift_plot, CI_plot, grid::unit(.06, "null"), position = "top")
+
+figure2 <- ggarrange(drift_plot,
+                     stability_plot + theme(text = element_text(size = 7)),
+                     ncol = 2, nrow = 1, align = "hv")
+
+figure <- ggarrange(figure1, figure2, ncol = 1, nrow = 2, align = "hv", heights = c(1, 1))
+figure
+
+# save
+ggsave(paste(path, "fig5.pdf", sep = "/"), figure, device = "pdf", height = 70, width = 88, units = "mm", dpi = 500)

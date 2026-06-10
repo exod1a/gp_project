@@ -5,7 +5,7 @@
 R_packages <- c("ggplot2", "rstan", "cowplot", "dplyr", "magrittr", "reshape2", "rockchalk", "here", "MASS",
                 "microbiome", "phyloseq", "spatialEco", "loo", "splus2R", "diptest", "RColorBrewer", 
                 "hilbertSimilarity", "modelbased", "ggpubr", "grid", "gridExtra", "ggeasy", "ggdist", "scales",
-                "microViz", "parallel", "gganimate", "magick", "ggExtra", "purrr", "ggtext")
+                "microViz", "parallel", "gganimate", "magick", "ggExtra", "purrr", "ggtext", "patchwork")
 
 # download any new packages
 new.packages <- R_packages[!(R_packages %in% installed.packages()[,"Package"])]

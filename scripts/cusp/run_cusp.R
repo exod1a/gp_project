@@ -39,7 +39,8 @@ ground_truth_stat_dens <- cusp_density(x_grid, r, alpha, beta, lambda, epsilon) 
 roots <- polyroot(c(-alpha, -beta, 0, 1))
 roots <- roots + lambda
 # remove complex roots
-roots <- Re(roots[Im(roots) != 0])
+#roots <- Re(roots[Im(roots) != 0])
+roots <- Re(roots)
 roots %<>% sort()
 
 # ground truth tipping point

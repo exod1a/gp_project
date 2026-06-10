@@ -1,100 +1,96 @@
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
+bistable tp_dist
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 
+0 NA 

@@ -1,125 +1,59 @@
 
-# Create ext. data figure 3
-# approximate run time: approx. 1 hour
-# taxa with bistable signatures
+# plot true positive heatmap for bistable case
+# plot the distance to the tipping point
+true_pos_matrix <- matrix(NA, 4, 4)
+tp_dist <- matrix(NA, 4, 4)
 
-# top taxa included in the extended HITChip data set
-top_taxa <- readLines(here("data", "ext_HITChip", "taxa.txt"))
-# bistable taxa
-bistable_taxa <- top_taxa[c(12, 32, 46, 47, 63)]
-# taxa found to be bistable but not all are in Lahti et al. 2014
+t_c <- 49.04125
 
-plot_list <- list()
+dt <- c(t_c, 0.1*t_c, 0.01*t_c, 0.001*t_c)
+total_points <- c(26, 50, 100, 200)
 
-# prepare extended HITChip data and save output
-for (m in 1:length(bistable_taxa)) {
-  
-  chosen_taxa <- bistable_taxa[m]
-  # read data for taxa if model has already been previously run on it
-  if (file.exists(here("output", "ext_HITChip", chosen_taxa, "stan_output.rds"))) {
-    # read saved model output
-    samples <- readRDS(here("output", "ext_HITChip", chosen_taxa, "stan_output.rds"))$samples
-    x_pred <- readRDS(here("output", "ext_HITChip", chosen_taxa, "stan_output.rds"))$x_pred
+for (m in 1:length(dt)) {
+  for (n in 1:length(total_points)) {
     
-    data_read_from_file <- 1
-    pred_inf <- 1
-    ground_truth <- 0
-    source(here("scripts", "model", "run_drift_diff.R"))
+    heatmap_data <- read.table(here("output", "figures", "extended_data", "figure 3", 
+                                    paste(dt[m]/t_c, "t_c", "N", total_points[n], ".txt", sep = "")), header = T)
     
-    # read in full time series data without changes (but still with large time step points removed)
-    ts_data_full <- readRDS(here("data", "ext_HITChip", chosen_taxa, "ts_data.rds"))
-    names(ts_data_full)[4] <- "state"
+    true_pos_matrix[m, n] <- (sum(heatmap_data$bistable)) / (sum(heatmap_data$bistable) + sum(!heatmap_data$bistable)) * 100
     
-    # read in time series data with changes e.g. dx, dt
-    ts_data <- readRDS(here("data", "ext_HITChip", chosen_taxa, "taxon_data.rds"))
-    
-    # subset for small time step points
-    to_keep <- sort(unique(c(which(ts_data_full$sample %in% unlist(subset(ts_data, dt < 45)$sample1)),
-                             which(ts_data_full$sample %in% unlist(subset(ts_data, dt < 45)$sample2)))))
-    ts_data_full <- ts_data_full[to_keep, ]
-    
-    # plot time series
-    ts_data_full$mean_val <- NA
-    for (j in unique(ts_data_full$subject)) {
-      subject_vals <- which(ts_data_full$subject == j)
-      ts_data_full$mean_val[subject_vals] <- (min(ts_data_full$state[subject_vals]) + max(ts_data_full$state[subject_vals]))/2
-    }
-    
-    # add variable for ordering short time series
-    ts_data_full$mean_val <- factor(ts_data_full$mean_val)
-    
-    # plot short time series
-    ts_plot_ordered <- ts_data_full %>%
-      ggplot() +
-      geom_line(aes(x=state, y=mean_val, group=as.character(mean_val)), colour = "royalblue4") +
-      geom_point(aes(x = state, y = mean_val, group = as.character(mean_val)), size = 0.4) +
-      labs(x = "System State", y = "Subject") +
-      theme_classic() + 
-      theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
-    
-  } else { 
-    source(here("scripts", "model", "run_model_on_taxa.R")) # run model
+    tp_dist[m, n] <- mean(heatmap_data$tp_dist[!is.na(heatmap_data$tp_dist)])
   }
-  
-  # find stability
-  source(here("scripts", "model", "stability.R"))
-  # if bistable
-  if (length(pos_roots) > 0) {
-    # get tipping region
-    
-    if (m == 5) {
-      n_states <- 2
-    }
-    source(here("scripts", "model", "tipping_point.R"))
-    
-    # add tipping point to drift plot 
-    #drift_plot <- drift_plot + geom_vline(xintercept = most_prob_tp, linetype = "dashed", colour = "orange") + 
-    #  coord_cartesian(xlim = c(min(x_pred), max(x_pred)), ylim = c(-0.1, 0.1)) + theme(text = element_text(size = 7))
-    
-    drift_plot <- insert_xaxis_grob(drift_plot, CI_plot, grid::unit(.06, "null"), position = "top")
-  }
-  
-  if (length(pos_roots) == 0) {
-    drift_plot <- drift_plot + coord_cartesian(xlim = c(min(x_pred), max(x_pred)), ylim = c(-0.1, 0.1))
-  }
-  
-  # make sure all stability plots have the same range
-  missing_probs <- c(1:4)[!(c(1:4) %in% stability_df$ms_subsetted)]
-  temp_df <- as.data.frame(matrix(c(missing_probs, rep(0, 3)), nrow = length(missing_probs), ncol = 2))
-  colnames(temp_df) <- c("ms_subsetted", "Freq")
-  stability_df$ms_subsetted <- factor(stability_df$ms_subsetted, levels = c(1:4))
-  stability_df <- rbind(stability_df, temp_df)
-  
-  # plot
-  stability_plot <- ggplot(stability_df, 
-                           aes(x = ms_subsetted, y = Freq)) +
-    geom_bar(stat = "identity", fill = "#8DA0CB", colour = "black") +
-    scale_y_continuous(labels = scales::percent_format(accuracy = 1), 
-                       breaks = c(0, 0.25, 0.5, 0.75, 1),
-                       limits = c(0, 1)) +
-    labs(x = "Multistability", y = "Probability") +
-    theme_classic()
-  
-  # create subfigure
-  sub_figure <- ggarrange(ts_plot_ordered + labs(title = chosen_taxa) + coord_cartesian(xlim = c(min(x_pred), max(x_pred))),
-                          drift_plot,
-                          stability_plot,
-                          ncol = 1, nrow = 3, align = "hv")
-  
-  plot_list[[m]] <- sub_figure
 }
 
-# create and save figure
-figure <- ggarrange(plot_list[[1]], 
-                    plot_list[[2]], 
-                    plot_list[[3]], 
-                    plot_list[[4]], 
-                    plot_list[[5]],
-                    ncol = 5, nrow = 1, align = "hv")
+rownames(true_pos_matrix) <- c("t_c", "0.1t_c", "0.01t_c", "0.001t_c")
+colnames(true_pos_matrix) <- c("13", "25", "50", "100")
 
-path <- here("output", "figures", "extended_data", "figure 3")
-dir.create(path)
+rownames(tp_dist) <- c("t_c", "0.1t_c", "0.01t_c", "0.001t_c")
+colnames(tp_dist) <- c("13", "25", "50", "100")
 
-# save
-ggsave(paste(path, "fig3.pdf", sep = "/"), figure, device = "pdf", height = 170, width = 300, units = "mm", dpi = 500)
+to_plot <- melt(true_pos_matrix)
+to_plot$Var1 <- factor(to_plot$Var1, ordered = T, levels = c("0.001t_c", "0.01t_c", "0.1t_c", "t_c"))
+to_plot$Var2 <- factor(to_plot$Var2, ordered = T, levels = c("13", "25", "50", "100"))
 
+tp_plot <- melt(tp_dist)
+tp_plot$Var1 <- factor(tp_plot$Var1, ordered = T, levels = c("0.001t_c", "0.01t_c", "0.1t_c", "t_c"))
+tp_plot$Var2 <- factor(tp_plot$Var2, ordered = T, levels = c("13", "25", "50", "100"))
+
+tp_error_heatmap <- ggplot(data = tp_plot, aes(Var2, Var1, fill = 1/value)) + 
+  geom_tile() +
+  geom_text(data = to_plot, aes(x = Var2, y = Var1, label = round(value, 0)), colour = "black") +
+  scale_fill_gradientn(limits = c(0.8, 1.55), colours = c('midnightblue', '#FFFFFF', 'red')) +
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_discrete(expand=c(0,0)) +
+  labs(x = "Number of time series", y = "Time step", title = "Tipping point esimation accuracy", 
+       subtitle = "Text: true positive rate (%)", fill = "Inverse distance to tipping pt \n conditional on detection") +
+  theme_classic() +
+  theme(axis.line=element_blank(), text = element_text(size = 7))
+
+
+#ggplot(tp_plot, aes(x = Var2, y = value, group = Var1, colour = Var1)) +
+#  geom_line(size = 1) +
+#  geom_point() +
+#  labs(x = "Number of time series", y = "Distance to tipping point\n conditional on detection", title = "Tipping point esimation accuracy", 
+#       colour = "Time step") + 
+#  theme_minimal()
+
+
+ggsave(tp_error_heatmap, filename = here("output", "figures", "extended_data", "figure 3", "heatmap.pdf"), device = "pdf", dpi = 300,
+       height = 80, width = 110, units = "mm")
