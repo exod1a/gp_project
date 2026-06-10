@@ -10,22 +10,13 @@ Before running any other file, run "scripts/main.R". It will load the necessary 
 
 Mostly made in Inkscape but Figure 1e can be made by running "scripts/figures/main_text/short_vs_long_ts.R"
 
-<img src="./output/figures/main_text/figure 1/short_vs_long_ts_plot.pdf" width="350" height="200">
-<img src="./output/figures/main_text/figure 1/densities.pdf" width="200" height="200">
-
-<img src="./output/figures/main_text/figure 1/fig1.pdf" width="550" height="400">
-
 ## Figure 2
 
 Made entirely in Inkscape
 
-<img src="./output/figures/main_text/figure 2/fig2.pdf" width="350" height="350">
-
 ## Figure 3
 
 Run "scripts/figures/main_text/fig3_code.R"
-
-<img src="./output/figures/main_text/figure 3/fig3.pdf" width="400" height="400">
 
 The final figure used in the publication was edited in Inkscape. The code to create the heatmaps (Fig. 3f,l) was run on the computing cluster Puhti and is therefore not included here.
 
@@ -33,15 +24,11 @@ The final figure used in the publication was edited in Inkscape. The code to cre
 
 Run "scripts/figures/main_text/fig4_code.R"
 
-<img src="./output/figures/main_text/figure 4/fig4.pdf" width="700" height="350">
-
 The final figure used in the publication was edited in Inkscape
 
 ## Figure 5
 
 Run "scripts/figures/main_text/fig5_code.R"
-
-<img src="./output/figures/main_text/figure 5/fig5.pdf" width="250" height="350">
 
 The final figure used in the publication was edited in Inkscape
 
@@ -49,44 +36,44 @@ The final figure used in the publication was edited in Inkscape
 
 ## Figure 1
 
-Run "scripts/figures/extended_data/ext_data_fig1code.R"
-
-<img src="./output/figures/extended_data/figure 1/fig1.pdf" width="350" height="350">
-
-The final figure used in the publication was edited in Inkscape
+Made entirely in Inkscape
 
 ## Figure 2
 
-Made entirely in Inkscape
-
-<img src="./output/figures/extended_data/figure 2/fig2.pdf" width="700" height="350">
+Run "scripts/figures/extended_data/ext_data_fig2code.R"
 
 ## Figure 3
 
 Run "scripts/figures/extended_data/ext_data_fig3code.R"
 
-<img src="./output/figures/extended_data/figure 3/fig3.pdf" width="500" height="350">
-
-The final figure used in the publication was edited in Inkscape
-
 ## Figure 4
 
 Run "scripts/figures/extended_data/ext_data_fig4code.R"
-
-<img src="./output/figures/extended_data/figure 4/fig4.pdf" width="500" height="350">
-
-The final figure used in the publication was edited in Inkscape
 
 ## Figure 5
 
 Run "scripts/figures/extended_data/ext_data_fig5code.R"
 
-<img src="./output/figures/extended_data/figure 5/fig5.pdf" width="250" height="350">
+## Figure 6
 
-The final figure used in the publication was edited in Inkscape
+Run "scripts/figures/extended_data/ext_data_fig6code.R"
+
+## Figure 7
+
+Run "scripts/figures/extended_data/ext_data_fig7code.R"
+
+## Figure 8
+
+Run "scripts/figures/extended_data/ext_data_fig8code.R"
+
+## Figure 9
+
+Run "scripts/figures/extended_data/ext_data_fig9code.R"
+
+## Figure 10
+
+Run "scripts/figures/extended_data/ext_data_fig10code.R"
 
 # Supplementary Video
 
 Run "scripts/figures/supplementary video/short_vs_long_ts_video.R"
-
-<img src="./output/videos/ts_comparison_fast_high_res.gif" width="250" height="350">
