@@ -5,6 +5,8 @@ The preprint of the article is published [here](https://arxiv.org/abs/2501.03820
 
 # Main Figures
 Before running any other file, run "scripts/main.R". It will load the necessary packages, functions, and compile the Stan model.
+The data needed to reproduce the figures has it's own doi and can be found [here](https://doi.org/10.5281/zenodo.20633369).
+Add the data folder to the repository directory so that it has the same path as scripts, output, and README.md.
 
 ## Figure 1
 
