@@ -1,5 +1,5 @@
 
-# Code for the paper: "Reconstructing ecological community dynamics from limited observations"
+# Code for the paper: "Reconstructing community dynamics from limited observations"
 
 The preprint of the article is published [here](https://arxiv.org/abs/2501.03820). In brief, it is a Bayesian model implemented in Stan that looks at decomposing the dynamics of a system into its constituent deterministic and stochastic parts (drift and diffusion respectively) using Gaussian process priors and the Euler-Maruyama approximation. The model can output a posterior on the number of stable states in the system, the locations of the stable and unstable points, the stationary density, stability landscape, and exit time if alternative stable states were found. 
 
